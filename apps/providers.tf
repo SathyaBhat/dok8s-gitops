@@ -7,31 +7,58 @@ terraform {
     helm = {
       source = "hashicorp/helm"
     }
-  }
-}
 
-data "terraform_remote_state" "dok8s-infra" {
-  backend = "remote"
-
-  config = {
-    organization = "sathyasays"
-    workspaces = {
-      name = "dok8s-infra"
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0"
     }
   }
 }
 
-provider "kubernetes" {
-  host = data.terraform_remote_state.dok8s-infra.cluster_host
-  token = data.terraform_remote_state.dok8s-infra.cluster_token
-  cluster_ca_certificate = data.terraform_remote_state.dok8s-infra.cluster_ca_certificate
+data "tfe_outputs" "dok8s-infra" {
+  organization = "sathyasays"
+  workspace    = "dok8s-infra"
 }
+
+provider "digitalocean" {
+  token = var.DO_TOKEN
+}
+
+data "digitalocean_kubernetes_cluster" "dok8s" {
+  name = data.tfe_outputs.dok8s-infra.values.cluster_name
+}
+
+# provider "kubernetes" {
+#   host                   = data.tfe_outputs.dok8s-infra.values.cluster_host
+#   token                  = data.tfe_outputs.dok8s-infra.values.cluster_token
+#   cluster_ca_certificate = base64decode(nonsensitive(data.tfe_outputs.dok8s-infra.values.cluster_ca_certificate))
+#   # config_path = "~/.kube/dok8s.yaml"
+# }
+
+provider "kubernetes" {
+  host  = data.digitalocean_kubernetes_cluster.dok8s.endpoint
+  token = data.digitalocean_kubernetes_cluster.dok8s.kube_config[0].token
+  cluster_ca_certificate = base64decode(
+    data.digitalocean_kubernetes_cluster.dok8s.kube_config[0].cluster_ca_certificate
+  )
+}
+
+# provider "helm" {
+#   kubernetes {
+#     host                   = data.tfe_outputs.dok8s-infra.values.cluster_host
+#     token                  = data.tfe_outputs.dok8s-infra.values.cluster_token
+#     cluster_ca_certificate = base64decode(nonsensitive(data.tfe_outputs.dok8s-infra.values.cluster_ca_certificate))
+#     #config_path = "~/.kube/dok8s.yaml"
+#   }
+# }
 
 provider "helm" {
   kubernetes {
-    host = data.terraform_remote_state.dok8s-infra.cluster_host
-    token = data.terraform_remote_state.dok8s-infra.cluster_token
-    cluster_ca_certificate = data.terraform_remote_state.dok8s-infra.cluster_ca_certificate
+    host  = data.digitalocean_kubernetes_cluster.dok8s.endpoint
+    token = data.digitalocean_kubernetes_cluster.dok8s.kube_config[0].token
+    cluster_ca_certificate = base64decode(
+      data.digitalocean_kubernetes_cluster.dok8s.kube_config[0].cluster_ca_certificate
+    )
   }
 }
 
