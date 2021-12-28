@@ -1,9 +1,9 @@
 terraform {
-  backend "remote" {
+  cloud {
     organization = "sathyasays"
 
     workspaces {
-      name = "dok8s"
+      name = "dok8s-infra"
     }
   }
 }
