@@ -1,12 +1,12 @@
 terraform {
   required_providers {
     digitalocean = {
-        source = "digitalocean/digitalocean"
-        version = "~> 2.0"
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0"
     }
   }
 }
 
 provider "digitalocean" {
-    token = var.DO_TOKEN
+  token = var.DO_TOKEN
 }

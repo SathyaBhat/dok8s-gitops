@@ -3,7 +3,7 @@ terraform {
     organization = "sathyasays"
 
     workspaces {
-      name = "dok8s-infra"
+      name = "dok8s-apps"
     }
   }
 }
