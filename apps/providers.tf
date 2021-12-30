@@ -28,13 +28,6 @@ data "digitalocean_kubernetes_cluster" "dok8s" {
   name = data.tfe_outputs.dok8s-infra.values.cluster_name
 }
 
-# provider "kubernetes" {
-#   host                   = data.tfe_outputs.dok8s-infra.values.cluster_host
-#   token                  = data.tfe_outputs.dok8s-infra.values.cluster_token
-#   cluster_ca_certificate = base64decode(nonsensitive(data.tfe_outputs.dok8s-infra.values.cluster_ca_certificate))
-#   # config_path = "~/.kube/dok8s.yaml"
-# }
-
 provider "kubernetes" {
   host  = data.digitalocean_kubernetes_cluster.dok8s.endpoint
   token = data.digitalocean_kubernetes_cluster.dok8s.kube_config[0].token
@@ -42,15 +35,6 @@ provider "kubernetes" {
     data.digitalocean_kubernetes_cluster.dok8s.kube_config[0].cluster_ca_certificate
   )
 }
-
-# provider "helm" {
-#   kubernetes {
-#     host                   = data.tfe_outputs.dok8s-infra.values.cluster_host
-#     token                  = data.tfe_outputs.dok8s-infra.values.cluster_token
-#     cluster_ca_certificate = base64decode(nonsensitive(data.tfe_outputs.dok8s-infra.values.cluster_ca_certificate))
-#     #config_path = "~/.kube/dok8s.yaml"
-#   }
-# }
 
 provider "helm" {
   kubernetes {
