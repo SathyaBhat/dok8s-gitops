@@ -27,7 +27,6 @@ kubectl create configmap config-artifact-pvc \
 --dry-run=true | kubectl replace -f -
 
 argocd repo add https://github.com/SathyaBhat/tekton-pipeline-example-app --username $SCM_USERNAME --password $SCM_PAT
-
 argocd repo add https://github.com/SathyaBhat/tekton-pipeline-example-pipeline --username $SCM_USERNAME --password $SCM_PAT
 
 argocd app create tekton-pipeline-app --repo https://github.com/SathyaBhat/tekton-pipeline-example-pipeline --path tekton-pipeline --dest-server https://kubernetes.default.svc --dest-namespace tekton-argocd-example
